@@ -10,12 +10,14 @@ import {
   Path,
   Arc,
   Line,
+  Shape,
 } from "react-konva";
 
 const App = () => {
-  const [width, setWidth] = useState(100);
-  const [height, setHeight] = useState(50);
-  const [radius, setRadius] = useState(30);
+  const [text, setText] = useState("");
+  const [width, setWidth] = useState(10);
+  const [height, setHeight] = useState(10);
+  const [radius, setRadius] = useState(0);
   const handelIncWidth = () => {
     setWidth(width + 15);
   };
@@ -33,6 +35,16 @@ const App = () => {
   };
   const handelDecRadius = () => {
     setRadius(radius - 5);
+  };
+  const handleMouseMove = (e) => {
+    const stage = e.target.getStage();
+    const pointerPosition = stage.getPointerPosition();
+    const x = pointerPosition.x;
+    const y = pointerPosition.y;
+    setText(() => "X:" + x + " Y:" + y);
+  };
+  const handelMouseOut = () => {
+    setText("");
   };
 
   return (
@@ -52,42 +64,37 @@ const App = () => {
         <button onClick={handelIncRadius}>+</button>
         <button onClick={handelDecRadius}>-</button>
       </div>
-      <Stage width={700} height={700}>
+      <Stage
+        width={700}
+        height={700}
+        onMouseMove={handleMouseMove}
+        onMouseOut={handelMouseOut}
+      >
         <Layer>
-          <Group>
-            <Rect
-              x={20}
-              y={100}
-              width={width}
-              height={height}
-              fill={"#00D2FF"}
-              stroke={"black"}
-              strokeWidth={2}
-              draggable
-            />
-            <Arc
-              x={120}
-              y={150}
-              // radius={radius}
-              angle={90}
-              rotation={180}
-              clockwise={false}
-              outerRadius={0}
-              innerRadius={radius}
-              fill={"white"}
-              stroke={"black"}
-              strokeWidth={2}
-            />
-            <Line
-              x={120}
-              y={150}
-              points={[120, 150, 120, 120, 90, 150]}
-              stroke={"red"}
-              bezier
-              strokeWidth={3}
-              draggable
-            />
-          </Group>
+          <Text text={text} x={50} y={550} fontSize={20} />
+          <Circle x={100} y={50} fill={"red"} radius={radius + 20} draggable />
+
+          <Shape
+            sceneFunc={(context, shape) => {
+              context.beginPath();
+              context.moveTo(70 + width - radius, 40 + height);
+              context.lineTo(0, 40 + height);
+              context.lineTo(0, 0);
+              context.lineTo(90 + width, 0);
+              context.lineTo(90 + width, 20 + height - radius);
+              context.quadraticCurveTo(
+                70 + width - radius,
+                20 + height - radius,
+                70 + width - radius,
+                40 + height
+              );
+              context.fillStrokeShape(shape);
+            }}
+            fill="#00D2FF"
+            stroke="black"
+            strokeWidth={2}
+            draggable
+          />
         </Layer>
       </Stage>
     </>
